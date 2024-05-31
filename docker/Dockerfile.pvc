@@ -1,0 +1,22 @@
+ARG PYT_BASE_IMAGE="intel/intel-extension-for-pytorch"
+ARG PYT_BASE_TAG="2.1.30-xpu"
+
+FROM ${PYT_BASE_IMAGE}:${PYT_BASE_TAG}
+
+WORKDIR /workspace/
+
+RUN . /etc/os-release && \
+    wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
+    sudo gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu ${VERSION_CODENAME}/lts/2350 unified" | \
+    sudo tee /etc/apt/sources.list.d/intel-gpu-${VERSION_CODENAME}.list 
+
+RUN sudo apt update && apt install -y intel-oneapi-ccl-devel=2021.12.0-309 python3-dev cmake vim 
+
+RUN pip install ninja wheel ogb && pip install git+https://github.com/pyg-team/pyg-lib.git
+
+RUN echo "source /opt/intel/oneapi/setvars.sh --force" >> /root/.bashrc
+
+RUN git clone https://github.com/pyg-team/pytorch_geometric.git pyg-dev && \
+    cd pyg-dev && \
+    pip install -e .
