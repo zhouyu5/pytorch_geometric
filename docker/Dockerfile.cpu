@@ -13,7 +13,9 @@ RUN mkdir -p /usr/share/keyrings && \
     echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
     | tee /etc/apt/sources.list.d/oneAPI.list
 
-RUN apt update && apt install -y intel-oneapi-ccl-devel=2021.12.0-309 python3-dev cmake vim 
+RUN apt update && \
+    apt install -y intel-oneapi-ccl-devel=2021.12.0-309 python3-dev cmake vim openssh-server && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip install ogb && pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cpu.html
 
@@ -22,3 +24,11 @@ RUN echo "source /opt/intel/oneapi/setvars.sh --force" >> /root/.bashrc
 RUN git clone https://github.com/pyg-team/pytorch_geometric.git pyg-dev && \
     cd pyg-dev && \
     pip install -e .
+
+RUN echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
+    echo "root:password" | chpasswd && \
+    service ssh start && \
+    ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N "" && \
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+CMD ["/usr/sbin/sshd", "-D"]
