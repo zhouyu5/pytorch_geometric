@@ -1,4 +1,4 @@
-docker build ./  \
+docker build docker/  \
     -f docker/Dockerfile.cpu -t cpu_pyg:v1 \
     --build-arg http_proxy=${http_proxy} \
     --build-arg https_proxy=${https_proxy} 
@@ -10,7 +10,7 @@ docker run \
     -w /workspace/  \
     -v /dev/dri:/dev/dri \
     -v $(pwd):/work \
-    -p 2222:22 \
+    -p 2222:2222 \
     -v /etc/hosts:/etc/hosts \
     --ipc=host \
     -e http_proxy=$http_proxy \
