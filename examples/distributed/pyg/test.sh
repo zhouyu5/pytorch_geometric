@@ -3,9 +3,8 @@
 PYG_WORKSPACE=/work/examples/distributed/pyg
 USER=root
 SSH_PROT=2222
-PY_EXEC="/usr/local/bin/python"
 EXEC_SCRIPT="node_ogb_cpu.py"
-CMD="cd ${PYG_WORKSPACE}; ${PY_EXEC} ${EXEC_SCRIPT}"
+CMD="cd ${PYG_WORKSPACE}; python ${EXEC_SCRIPT}"
 
 # Node number:
 NUM_NODES=2
@@ -14,7 +13,7 @@ NUM_NODES=2
 DATASET=ogbn-products
 
 # Dataset folder:
-DATASET_ROOT_DIR="../../../data/partitions/${DATASET}/${NUM_NODES}-parts"
+DATASET_ROOT_DIR="/work/data/partitions/${DATASET}/${NUM_NODES}-parts"
 
 # Number of epochs:
 NUM_EPOCHS=1
@@ -38,7 +37,7 @@ IP_CONFIG=${PYG_WORKSPACE}/data/ip_config.yaml
 # Folder and filename to place logs:
 logdir="data"
 mkdir -p $logdir
-logname=log_${DATASET}_${NUM_PARTS}_$RANDOM
+logname=log_${DATASET}_${NUM_PARTS}_$(date +%H%M)
 echo "stdout stored in ${PYG_WORKSPACE}/${logdir}/${logname}"
 set -x
 
