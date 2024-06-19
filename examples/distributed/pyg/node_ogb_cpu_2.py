@@ -4,6 +4,7 @@ import time
 from contextlib import nullcontext
 
 import torch
+import oneccl_bindings_for_pytorch
 import torch.distributed
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel
@@ -222,7 +223,6 @@ def run_proc(
     current_device = torch.device('cpu')
 
     print('--- Initialize DDP training group ...')
-    import oneccl_bindings_for_pytorch
     torch.distributed.init_process_group(
         backend='ccl',
         rank=current_ctx.rank,
