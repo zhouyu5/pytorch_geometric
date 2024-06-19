@@ -1,5 +1,5 @@
 ARG PYT_BASE_IMAGE="intel/intel-extension-for-pytorch"
-ARG PYT_BASE_TAG="2.3.0-pip-base"
+ARG PYT_BASE_TAG="2.3.0-pip-multinode"
 
 FROM ${PYT_BASE_IMAGE}:${PYT_BASE_TAG}
 

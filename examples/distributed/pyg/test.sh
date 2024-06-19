@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm dist_cpu-node0.txt
+
 PYG_WORKSPACE=/work/examples/distributed/pyg
 USER=root
 SSH_PROT=2222
