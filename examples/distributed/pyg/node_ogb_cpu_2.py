@@ -1,4 +1,5 @@
 import argparse
+import os
 import os.path as osp
 import time
 from contextlib import nullcontext
@@ -160,6 +161,22 @@ def train(
     torch.distributed.barrier()
 
 
+def get_dist_params(master_addr, master_port):
+    mpi_rank = int(os.environ.get("PMI_RANK", -1))
+    mpi_world_size = int(os.environ.get("PMI_SIZE", -1))
+    rank = mpi_rank if mpi_world_size > 0 else os.environ.get("RANK", 0)
+    world_size = (mpi_world_size if mpi_world_size > 0 else os.environ.get(
+        "WORLD_SIZE", 1))
+    os.environ["RANK"] = str(rank)
+    os.environ["WORLD_SIZE"] = str(world_size)
+
+    os.environ["MASTER_ADDR"] = master_addr
+    os.environ["MASTER_PORT"] = master_port
+    init_method = f"tcp://{master_addr}:{master_port}"
+
+    return rank, world_size, init_method
+
+
 def run_proc(
     local_proc_rank: int,
     num_nodes: int,
@@ -182,10 +199,9 @@ def run_proc(
     is_hetero = dataset == 'ogbn-mag'
 
     print('--- Initialize DDP training group ...')
-    torch.distributed.init_process_group(
-        backend='gloo',
-        init_method='tcp://{}:{}'.format(master_addr, ddp_port),
-    )
+    rank, world_size, init_method = get_dist_params(master_addr, ddp_port)
+    dist.init_process_group(backend="gloo", init_method=init_method,
+                            world_size=world_size, rank=rank)
     node_rank = dist.get_rank()
 
     if args.logging:
