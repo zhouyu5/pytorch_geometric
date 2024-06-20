@@ -13,6 +13,9 @@ DATASET=ogbn-products
 DATASET_ROOT_DIR="/work/data/partitions/${DATASET}/${hosts_num}-parts"
 LOG_PATH=${PYG_WORKSPACE}/data/log_${DATASET}_${hosts_num}_$(date +%H%M)
 CMD="python ${EXEC_SCRIPT} --dataset=${DATASET} \
+     --num_epochs=1 --batch_size=1024 --num_neighbors=5,5,5 \
+     --num_workers=2 --concurrency=4 --ddp_port=11111 \
+     --ddp_backend=gloo \
      --dataset_root_dir=${DATASET_ROOT_DIR} --master_addr=${master_addr}"
 
 mpirun \

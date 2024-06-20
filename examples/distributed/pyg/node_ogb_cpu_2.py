@@ -199,7 +199,7 @@ def run_proc(
 
     print('--- Initialize DDP training group ...')
     rank, world_size, init_method = get_dist_params(master_addr, ddp_port)
-    dist.init_process_group(backend="ccl", init_method=init_method,
+    dist.init_process_group(backend=args.ddp_backend, init_method=init_method,
                             world_size=world_size, rank=rank)
     node_rank = dist.get_rank()
 
@@ -404,6 +404,12 @@ if __name__ == '__main__':
         type=str,
         default='localhost',
         help='The master address for RPC initialization',
+    )
+    parser.add_argument(
+        '--ddp_backend',
+        type=str,
+        default='gloo',
+        help='The backend of the ddp process group',
     )
     parser.add_argument(
         '--ddp_port',
