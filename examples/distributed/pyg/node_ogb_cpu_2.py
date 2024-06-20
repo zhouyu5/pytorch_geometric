@@ -179,7 +179,6 @@ def get_dist_params(master_addr, master_port):
 
 def run_proc(
     local_proc_rank: int,
-    num_nodes: int,
     dataset: str,
     dataset_root_dir: str,
     master_addr: str,
@@ -243,9 +242,9 @@ def run_proc(
 
     # Initialize distributed context:
     current_ctx = DistContext(
-        world_size=num_nodes,
+        world_size=world_size,
         rank=node_rank,
-        global_world_size=num_nodes,
+        global_world_size=world_size,
         global_rank=node_rank,
         group_name='distributed-ogb-sage',
     )
@@ -359,12 +358,6 @@ if __name__ == '__main__':
         help='The root directory (relative path) of partitioned dataset',
     )
     parser.add_argument(
-        '--num_nodes',
-        type=int,
-        default=2,
-        help='Number of distributed nodes',
-    )
-    parser.add_argument(
         '--num_neighbors',
         type=str,
         default='15,10,5',
@@ -456,7 +449,6 @@ if __name__ == '__main__':
     torch.multiprocessing.spawn(
         run_proc,
         args=(
-            args.num_nodes,
             args.dataset,
             args.dataset_root_dir,
             args.master_addr,
