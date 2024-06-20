@@ -170,8 +170,8 @@ def get_dist_params(master_addr, master_port):
     os.environ["RANK"] = str(rank)
     os.environ["WORLD_SIZE"] = str(world_size)
 
-    os.environ["MASTER_ADDR"] = master_addr
-    os.environ["MASTER_PORT"] = master_port
+    os.environ["MASTER_ADDR"] = str(master_addr)
+    os.environ["MASTER_PORT"] = str(master_port)
     init_method = f"tcp://{master_addr}:{master_port}"
 
     return rank, world_size, init_method
