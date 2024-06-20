@@ -182,6 +182,13 @@ def run_proc(
 ):
     is_hetero = dataset == 'ogbn-mag'
 
+    if args.logging:
+        logfile = f'dist_cpu-node{args.node_rank}.txt'
+        with open(logfile, 'a+') as log:
+            log.write(f'\n--- Inputs: {str(args)}')
+    else:
+        logfile = None
+
     print('--- Loading data partition files ...')
     root_dir = osp.join(osp.dirname(osp.realpath(__file__)), dataset_root_dir)
     node_label_file = osp.join(root_dir, f'{dataset}-label', 'label.pt')
@@ -438,13 +445,6 @@ if __name__ == '__main__':
     print(f'* logging enabled: {args.logging}')
     print(f'* progress bars enabled: {args.progress_bar}')
 
-    if args.logging:
-        logfile = f'dist_cpu-node{args.node_rank}.txt'
-        with open(logfile, 'a+') as log:
-            log.write(f'\n--- Inputs: {str(args)}')
-    else:
-        logfile = None
-
     print('--- Launching training processes ...')
     torch.multiprocessing.spawn(
         run_proc,
@@ -465,7 +465,7 @@ if __name__ == '__main__':
             args.num_workers,
             args.num_loader_threads,
             args.progress_bar,
-            logfile,
+            args,
         ),
         join=True,
     )
