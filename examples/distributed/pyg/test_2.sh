@@ -44,7 +44,7 @@ echo "stdout stored in ${PYG_WORKSPACE}/${logdir}/${logname}"
 set -x
 
 # stdout stored in `/logdir/logname.out`.
-python launch.py --workspace ${PYG_WORKSPACE} --ssh_port ${SSH_PROT} --ip_config ${IP_CONFIG} --ssh_username ${USER} --num_nodes ${NUM_NODES} --num_neighbors ${NUM_NEIGHBORS} --dataset_root_dir ${DATASET_ROOT_DIR} --dataset ${DATASET}  --num_epochs ${NUM_EPOCHS} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --concurrency ${CONCURRENCY} --ddp_port ${DDP_PORT} "${CMD}" |& tee ${logdir}/${logname} &
+python launch_2.py --workspace ${PYG_WORKSPACE} --ssh_port ${SSH_PROT} --ip_config ${IP_CONFIG} --ssh_username ${USER} --num_nodes ${NUM_NODES} --num_neighbors ${NUM_NEIGHBORS} --dataset_root_dir ${DATASET_ROOT_DIR} --dataset ${DATASET}  --num_epochs ${NUM_EPOCHS} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --concurrency ${CONCURRENCY} --ddp_port ${DDP_PORT} "${CMD}" |& tee ${logdir}/${logname} &
 pid=$!
 echo "started launch.py: ${pid}"
 # kill processes at script exit (Ctrl + C)
