@@ -5,7 +5,7 @@ from contextlib import nullcontext
 
 import torch
 import oneccl_bindings_for_pytorch
-import torch.distributed
+import torch.distributed as dist
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel
 from tqdm import tqdm
@@ -163,7 +163,6 @@ def train(
 def run_proc(
     local_proc_rank: int,
     num_nodes: int,
-    node_rank: int,
     dataset: str,
     dataset_root_dir: str,
     master_addr: str,
@@ -182,8 +181,17 @@ def run_proc(
 ):
     is_hetero = dataset == 'ogbn-mag'
 
+    print('--- Initialize DDP training group ...')
+    torch.distributed.init_process_group(
+        backend='gloo',
+        rank=current_ctx.rank,
+        world_size=current_ctx.world_size,
+        init_method='tcp://{}:{}'.format(master_addr, ddp_port),
+    )
+    node_rank
+
     if args.logging:
-        logfile = f'dist_cpu-node{args.node_rank}.txt'
+        logfile = f'dist_cpu-node{node_rank}.txt'
         with open(logfile, 'a+') as log:
             log.write(f'\n--- Inputs: {str(args)}')
     else:
@@ -228,14 +236,6 @@ def run_proc(
         group_name='distributed-ogb-sage',
     )
     current_device = torch.device('cpu')
-
-    print('--- Initialize DDP training group ...')
-    torch.distributed.init_process_group(
-        backend='gloo',
-        rank=current_ctx.rank,
-        world_size=current_ctx.world_size,
-        init_method='tcp://{}:{}'.format(master_addr, ddp_port),
-    )
 
     print('--- Initialize distributed loaders ...')
     num_neighbors = [int(i) for i in num_neighbors.split(',')]
@@ -357,12 +357,6 @@ if __name__ == '__main__':
         help='Number of node neighbors sampled at each layer',
     )
     parser.add_argument(
-        '--node_rank',
-        type=int,
-        default=0,
-        help='The current node rank',
-    )
-    parser.add_argument(
         '--num_epochs',
         type=int,
         default=100,
@@ -429,7 +423,6 @@ if __name__ == '__main__':
 
     print('--- Distributed training example on OGB ---')
     print(f'* total nodes: {args.num_nodes}')
-    print(f'* node rank: {args.node_rank}')
     print(f'* dataset: {args.dataset}')
     print(f'* dataset root dir: {args.dataset_root_dir}')
     print(f'* epochs: {args.num_epochs}')
@@ -450,7 +443,6 @@ if __name__ == '__main__':
         run_proc,
         args=(
             args.num_nodes,
-            args.node_rank,
             args.dataset,
             args.dataset_root_dir,
             args.master_addr,
