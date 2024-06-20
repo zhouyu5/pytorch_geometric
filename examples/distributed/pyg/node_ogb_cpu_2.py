@@ -429,7 +429,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print('--- Distributed training example on OGB ---')
-    print(f'* total nodes: {args.num_nodes}')
     print(f'* dataset: {args.dataset}')
     print(f'* dataset root dir: {args.dataset_root_dir}')
     print(f'* epochs: {args.num_epochs}')
