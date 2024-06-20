@@ -224,7 +224,7 @@ def run_proc(
 
     print('--- Initialize DDP training group ...')
     torch.distributed.init_process_group(
-        backend='ccl',
+        backend='gloo',
         rank=current_ctx.rank,
         world_size=current_ctx.world_size,
         init_method='tcp://{}:{}'.format(master_addr, ddp_port),
