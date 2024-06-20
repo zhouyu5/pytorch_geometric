@@ -199,7 +199,7 @@ def run_proc(
 
     print('--- Initialize DDP training group ...')
     rank, world_size, init_method = get_dist_params(master_addr, ddp_port)
-    dist.init_process_group(backend="gloo", init_method=init_method,
+    dist.init_process_group(backend="ccl", init_method=init_method,
                             world_size=world_size, rank=rank)
     node_rank = dist.get_rank()
 
