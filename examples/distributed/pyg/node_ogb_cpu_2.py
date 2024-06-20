@@ -188,7 +188,7 @@ def run_proc(
         world_size=current_ctx.world_size,
         init_method='tcp://{}:{}'.format(master_addr, ddp_port),
     )
-    node_rank
+    node_rank = dist.get_rank()
 
     if args.logging:
         logfile = f'dist_cpu-node{node_rank}.txt'
