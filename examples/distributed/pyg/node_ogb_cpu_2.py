@@ -178,7 +178,7 @@ def run_proc(
     num_workers: int,
     num_loader_threads: int,
     progress_bar: bool,
-    logfile: str,
+    args: str,
 ):
     is_hetero = dataset == 'ogbn-mag'
 
