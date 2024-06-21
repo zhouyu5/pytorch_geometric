@@ -1,7 +1,9 @@
 docker build docker/  \
-    -f docker/Dockerfile.cpu -t cpu_pyg:v1 \
+    -f docker/Dockerfile.pvc -t xpu_pyg:v2 \
     --build-arg http_proxy=${http_proxy} \
     --build-arg https_proxy=${https_proxy} 
+
+docker tag xpu_pyg:v2 nathanzz2/xpu_pyg:v2 && docker push nathanzz2/xpu_pyg:v2
 
 
 docker run \
@@ -20,7 +22,7 @@ docker run \
     -e http_proxy=$http_proxy \
     -e https_proxy=$https_proxy \
     -e no_proxy=$no_proxy \
-    -itd nathanzz2/cpu_pyg:v1 \
+    -itd nathanzz2/xpu_pyg:v2 \
 && docker exec -it "pvc_train" bash
 
 docker stop pvc_train && docker rm pvc_train
