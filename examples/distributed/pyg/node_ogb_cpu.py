@@ -468,6 +468,6 @@ if __name__ == '__main__':
             args.progress_bar,
             logfile,
         ),
-        join=False,
+        join=True,
     )
     print('--- Finished training processes ...')
