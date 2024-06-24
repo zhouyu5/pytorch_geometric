@@ -224,9 +224,6 @@ def run_proc(
     current_device = torch.device('cpu')
 
     print('--- Initialize DDP training group ...')
-    if args.ddp_backend == 'ccl':
-        import intel_extension_for_pytorch 
-        import oneccl_bindings_for_pytorch
     torch.distributed.init_process_group(
         backend='ccl',
         rank=current_ctx.rank,
@@ -429,6 +426,10 @@ if __name__ == '__main__':
     parser.add_argument('--progress_bar', action='store_true')
 
     args = parser.parse_args()
+
+    if args.ddp_backend == 'ccl':
+        import intel_extension_for_pytorch 
+        import oneccl_bindings_for_pytorch
 
     print('--- Distributed training example on OGB ---')
     print(f'* total nodes: {args.num_nodes}')
