@@ -4,8 +4,6 @@ import time
 from contextlib import nullcontext
 
 import torch
-import intel_extension_for_pytorch 
-import oneccl_bindings_for_pytorch
 import torch.distributed
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel
@@ -180,6 +178,7 @@ def run_proc(
     num_loader_threads: int,
     progress_bar: bool,
     logfile: str,
+    args,
 ):
     is_hetero = dataset == 'ogbn-mag'
 
@@ -224,8 +223,11 @@ def run_proc(
     current_device = torch.device('cpu')
 
     print('--- Initialize DDP training group ...')
+    if args.ddp_backend == 'ccl':
+        import intel_extension_for_pytorch 
+        import oneccl_bindings_for_pytorch
     torch.distributed.init_process_group(
-        backend='ccl',
+        backend=args.ddp_backend,
         rank=current_ctx.rank,
         world_size=current_ctx.world_size,
         init_method='tcp://{}:{}'.format(master_addr, ddp_port),
@@ -427,10 +429,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.ddp_backend == 'ccl':
-        import intel_extension_for_pytorch 
-        import oneccl_bindings_for_pytorch
-
     print('--- Distributed training example on OGB ---')
     print(f'* total nodes: {args.num_nodes}')
     print(f'* node rank: {args.node_rank}')
@@ -477,6 +475,7 @@ if __name__ == '__main__':
             args.num_loader_threads,
             args.progress_bar,
             logfile,
+            args,
         ),
         join=True,
     )
