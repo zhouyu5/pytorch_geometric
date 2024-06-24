@@ -224,6 +224,9 @@ def run_proc(
     current_device = torch.device('cpu')
 
     print('--- Initialize DDP training group ...')
+    if args.ddp_backend == 'ccl':
+        import intel_extension_for_pytorch 
+        import oneccl_bindings_for_pytorch
     torch.distributed.init_process_group(
         backend='ccl',
         rank=current_ctx.rank,
@@ -397,6 +400,12 @@ if __name__ == '__main__':
         type=str,
         default='localhost',
         help='The master address for RPC initialization',
+    )
+    parser.add_argument(
+        '--ddp_backend',
+        type=str,
+        default='gloo',
+        help='The backend of the ddp process group',
     )
     parser.add_argument(
         '--ddp_port',

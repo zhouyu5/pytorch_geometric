@@ -18,6 +18,9 @@ CMD="python ${EXEC_SCRIPT} --dataset=${DATASET} \
      --ddp_backend=gloo \
      --dataset_root_dir=${DATASET_ROOT_DIR} --master_addr=${master_addr}"
 
+
+# -genv export CCL_WORKER_COUNT=4 \
+# -genv export CCL_WORKER_AFFINITY=auto \
 mpirun \
     -genv OMP_NUM_THREADS=$OMP_NUM_THREADS \
     -n $hosts_num -ppn $ppn \

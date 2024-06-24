@@ -5,7 +5,6 @@ import time
 from contextlib import nullcontext
 
 import torch
-import oneccl_bindings_for_pytorch
 import torch.distributed as dist
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel
@@ -198,6 +197,9 @@ def run_proc(
     is_hetero = dataset == 'ogbn-mag'
 
     print('--- Initialize DDP training group ...')
+    if args.ddp_backend == 'ccl':
+        import intel_extension_for_pytorch 
+        import oneccl_bindings_for_pytorch
     rank, world_size, init_method = get_dist_params(master_addr, ddp_port)
     dist.init_process_group(backend=args.ddp_backend, init_method=init_method,
                             world_size=world_size, rank=rank)
