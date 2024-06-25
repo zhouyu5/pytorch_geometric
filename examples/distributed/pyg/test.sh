@@ -6,8 +6,7 @@ PYG_WORKSPACE=/work/examples/distributed/pyg
 USER=root
 SSH_PROT=2222
 EXEC_SCRIPT="node_ogb_cpu.py"
-# source /opt/intel/oneapi/setvars.sh --force; 
-CMD="cd ${PYG_WORKSPACE}; python ${EXEC_SCRIPT} --ddp_backend=gloo"
+CMD="source /opt/intel/oneapi/setvars.sh --force; cd ${PYG_WORKSPACE}; python ${EXEC_SCRIPT} --ddp_backend=gloo"
 
 # Node number:
 NUM_NODES=2
