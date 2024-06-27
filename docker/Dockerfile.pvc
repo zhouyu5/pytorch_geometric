@@ -11,9 +11,14 @@ RUN . /etc/os-release && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu ${VERSION_CODENAME}/lts/2350 unified" | \
     sudo tee /etc/apt/sources.list.d/intel-gpu-${VERSION_CODENAME}.list 
 
+RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+    | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+    | sudo tee /etc/apt/sources.list.d/oneAPI.list
+
 RUN sudo apt update && \
     apt install -y intel-oneapi-ccl-devel=2021.12.0-309 \
-    python3-dev cmake vim openssh-server && \
+    xpu-smi python3-dev cmake vim openssh-server && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
