@@ -34,6 +34,7 @@ RUN git clone https://github.com/pyg-team/pytorch_geometric.git pyg-dev && \
 RUN echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
     echo 'Port 2222' >> /etc/ssh/sshd_config && \
     echo '    Port 2222' >> /etc/ssh/ssh_config && \
+    echo '    StrictHostKeyChecking no' >> /etc/ssh/ssh_config && \
     echo "root:password" | chpasswd && \
     service ssh start && \
     ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N "" && \
