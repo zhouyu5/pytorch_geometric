@@ -33,5 +33,6 @@ if __name__ == "__main__":
                     print(f'np = {np}, dataset = {dataset}, batch_size = {batch_size}, num_workers = {num_workers} is done!')
                     print(command)
                     print('#' * 70)
+                    sys.stdout.flush()
 
 # python compare.py 2>&1 | tee -a compare.log
