@@ -26,7 +26,7 @@ if __name__ == "__main__":
                         --num-neighbors 10 \
                         --num-epochs 10 \
                         --num-workers {num_workers} \
-                        --evaluate
+                        --test
                     """
                     os.system(command)
                     print('#' * 70)
