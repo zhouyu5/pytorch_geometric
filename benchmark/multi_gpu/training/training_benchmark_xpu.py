@@ -57,4 +57,4 @@ if __name__ == '__main__':
     if local_rank != 0:
         data, num_classes = get_dataset(args.dataset, args.root)
 
-    run(local_rank, world_size, args, num_classes, data, custom_optimizer)
+    run(local_rank, rank, world_size, args, num_classes, data, custom_optimizer)

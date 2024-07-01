@@ -83,7 +83,7 @@ def create_mask_per_rank(
         return mask_per_rank
 
 
-def run(rank: int, world_size: int, args: argparse.ArgumentParser,
+def run(rank: int, world_rank: int, world_size: int, args: argparse.ArgumentParser,
         num_classes: int, data: Union[Data, HeteroData],
         custom_optimizer: Callable[[Any, Any], Tuple[Any, Any]] = None):
     if not device_conditions[args.device]():
@@ -91,7 +91,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
 
     device = torch.device(f'{args.device}:{rank}')
 
-    if rank == 0:
+    if world_rank == 0:
         print('BENCHMARK STARTS')
         print(f'Running on {args.device.upper()}')
         print(f'Dataset: {args.dataset}')
@@ -109,7 +109,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
         err_msg = (f'Configuration of {args.dataset} + {args.model}'
                    'not supported')
         raise RuntimeError(err_msg)
-    if rank == 0:
+    if world_rank == 0:
         print(f'Training bench for {args.model}:')
 
     num_nodes = int(mask[-1].sum()) if hetero else int(mask.sum())
@@ -136,14 +136,14 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
         sampler=None,
         **kwargs,
     )
-    if rank == 0 and args.evaluate:
+    if world_rank == 0 and args.evaluate:
         val_loader = NeighborLoader(
             data,
             input_nodes=val_mask,
             sampler=None,
             **kwargs,
         )
-    if rank == 0 and args.test:
+    if world_rank == 0 and args.test:
         test_loader = NeighborLoader(
             data,
             input_nodes=test_mask,
@@ -151,7 +151,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
             **kwargs,
         )
 
-    if rank == 0:
+    if world_rank == 0:
         print('----------------------------------------------')
         print(
             f'Batch size={args.batch_size}, '
@@ -205,7 +205,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
 
     maybe_synchronize(args.device)
     dist.barrier()
-    if rank == 0:
+    if world_rank == 0:
         beg = perf_counter()
 
     for epoch in range(args.num_epochs):
@@ -218,10 +218,10 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
 
         dist.barrier()
 
-        if rank == 0:
+        if world_rank == 0:
             print(f'Epoch: {epoch:02d}, Loss: {loss:.4f}', flush=True)
 
-        if rank == 0 and args.evaluate:
+        if world_rank == 0 and args.evaluate:
             # In evaluate, throughput and
             # latency are not accurate.
             val_acc = test(model, val_loader, device, hetero,
@@ -232,17 +232,17 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
 
     maybe_synchronize(args.device)
     dist.barrier()
-    if rank == 0:
+    if world_rank == 0:
         end = perf_counter()
         duration = end - beg
 
-    if rank == 0 and args.test:
+    if world_rank == 0 and args.test:
         test_acc = test(model, test_loader, device, hetero, progress_bar=False)
         print(f'Test Accuracy: {test_acc:.4f}')
 
     dist.barrier()
 
-    if rank == 0:
+    if world_rank == 0:
         num_nodes_total = num_nodes * world_size
         duration_per_epoch = duration / args.num_epochs
         throughput = num_nodes_total / duration_per_epoch
