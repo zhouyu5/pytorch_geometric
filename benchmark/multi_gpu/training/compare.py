@@ -34,4 +34,4 @@ if __name__ == "__main__":
                     print(command)
                     print('#' * 70)
 
-# python compare.py | tee -a compare.log
+# python compare.py 2>&1 | tee -a compare.log
