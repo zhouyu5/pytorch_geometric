@@ -235,7 +235,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
         end = perf_counter()
         duration = end - beg
 
-    if rank == 0 and args.evaluate:
+    if rank == 0 and args.test:
         test_acc = test(model, test_loader, device, hetero, progress_bar=False)
         print(f'Test Accuracy: {test_acc:.4f}')
 
@@ -275,5 +275,6 @@ def get_predefined_args() -> argparse.ArgumentParser:
     add('--num-workers', default=0, type=int)
     add('--num-epochs', default=1, type=int)
     add('--evaluate', action='store_true')
+    add('--test', action='store_true')
 
     return argparser
