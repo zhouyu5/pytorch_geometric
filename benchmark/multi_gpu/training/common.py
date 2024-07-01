@@ -143,6 +143,7 @@ def run(rank: int, world_size: int, args: argparse.ArgumentParser,
             sampler=None,
             **kwargs,
         )
+    if rank == 0 and args.test:
         test_loader = NeighborLoader(
             data,
             input_nodes=test_mask,
