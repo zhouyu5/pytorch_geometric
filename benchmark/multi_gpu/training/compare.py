@@ -8,7 +8,8 @@ if __name__ == "__main__":
     dataset_list = ['Reddit', 'ogbn-products']
     batch_size_list = [128, 512]
     # num_workers_list = [0, 2, 4, 8, 16]
-    num_workers_list = [0, 16]
+    # num_workers_list = [0, 16]
+    num_workers_list = [2, 4, 8]
 
     for np in np_list:
         for dataset in dataset_list:
