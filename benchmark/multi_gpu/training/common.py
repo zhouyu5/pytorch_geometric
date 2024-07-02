@@ -22,6 +22,7 @@ supported_sets = {
 device_conditions = {
     'xpu': (lambda: torch.xpu.is_available()),
     'cuda': (lambda: torch.cuda.is_available()),
+    'cpu': (lambda: torch.cpu.is_available()),
 }
 
 
@@ -63,6 +64,8 @@ def maybe_synchronize(device: str):
         torch.xpu.synchronize()
     if device == 'cuda' and torch.cuda.is_available():
         torch.cuda.synchronize()
+    if device == 'cpu' and torch.cpu.is_available():
+        torch.cpu.synchronize()
 
 
 def create_mask_per_rank(
@@ -89,7 +92,10 @@ def run(rank: int, world_rank: int, world_size: int, args: argparse.ArgumentPars
     if not device_conditions[args.device]():
         raise RuntimeError(f'{args.device.upper()} is not available')
 
-    device = torch.device(f'{args.device}:{rank}')
+    if device != 'cpu':
+        device = torch.device(f'{args.device}:{rank}')
+    else:
+        device = torch.device('cpu')
 
     if world_rank == 0:
         print('BENCHMARK STARTS')
@@ -193,7 +199,7 @@ def run(rank: int, world_rank: int, world_size: int, args: argparse.ArgumentPars
         }
         model.forward(fake_x_dict, fake_edge_index_dict)
 
-    model = DDP(model, device_ids=[device], find_unused_parameters=hetero)
+    model = DDP(model, device_ids=[device] if (device != 'cpu') else None, find_unused_parameters=hetero)
     model.train()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
