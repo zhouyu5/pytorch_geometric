@@ -265,6 +265,8 @@ def get_predefined_args() -> argparse.ArgumentParser:
         'GNN distributed (DDP) training benchmark')
     add = argparser.add_argument
 
+    add('--device', choices=['cpu', 'cuda', 'xpu'], default='xpu',
+        help='Device to run benchmark on')
     add('--dataset', choices=['ogbn-mag', 'ogbn-products', 'Reddit'],
         default='Reddit', type=str)
     add('--model',
