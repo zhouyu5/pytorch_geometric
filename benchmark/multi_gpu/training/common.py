@@ -92,7 +92,7 @@ def run(rank: int, world_rank: int, world_size: int, args: argparse.ArgumentPars
     if not device_conditions[args.device]():
         raise RuntimeError(f'{args.device.upper()} is not available')
 
-    if device != 'cpu':
+    if args.device != 'cpu':
         device = torch.device(f'{args.device}:{rank}')
     else:
         device = torch.device('cpu')
@@ -199,7 +199,7 @@ def run(rank: int, world_rank: int, world_size: int, args: argparse.ArgumentPars
         }
         model.forward(fake_x_dict, fake_edge_index_dict)
 
-    model = DDP(model, device_ids=[device] if (device != 'cpu') else None, find_unused_parameters=hetero)
+    model = DDP(model, device_ids=[device] if (args.device != 'cpu') else None, find_unused_parameters=hetero)
     model.train()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)

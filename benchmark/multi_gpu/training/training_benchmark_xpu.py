@@ -1,6 +1,6 @@
 import os
 from typing import Any, Tuple
-
+import intel_extension_for_pytorch as ipex
 import oneccl_bindings_for_pytorch  # noqa
 import torch.distributed as dist
 
@@ -35,7 +35,6 @@ def get_dist_params() -> Tuple[int, int, str]:
 
 
 def custom_optimizer(model: Any, optimizer: Any) -> Tuple[Any, Any]:
-    import intel_extension_for_pytorch as ipex
     return ipex.optimize(model, optimizer=optimizer)
 
 
