@@ -285,5 +285,6 @@ def get_predefined_args() -> argparse.ArgumentParser:
     add('--num-epochs', default=1, type=int)
     add('--evaluate', action='store_true')
     add('--test', action='store_true')
+    add('--ipex', action='store_true')
 
     return argparser
