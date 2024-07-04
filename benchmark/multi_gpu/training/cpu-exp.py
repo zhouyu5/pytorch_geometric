@@ -17,48 +17,42 @@ def get_predefined_args() -> argparse.ArgumentParser:
         'GNN distributed (DDP) training benchmark')
     add = argparser.add_argument
     add('--hosts', nargs='+')
-    add('--task', nargs='+', choices=['single', 'multi'], default=['multi'])
+    add('--task', nargs='+', choices=['single', 'multi'], default=['single', 'multi'])
     return argparser
 
 
 def main():
     dataset_list = ['Reddit', 'ogbn-products']
+    device_list = ['cpu', 'xpu']
     hosts = ','.join(args.hosts)
 
     if 'single' in args.task:
-        for host in args.hosts:
-            for dataset in dataset_list:
-                command = f"""
-                ssh {host} \
-                'source /opt/intel/oneapi/setvars.sh --force && \
-                cd /workspace/pyg-dev/benchmark/multi_gpu/training/ && \
-                mpirun \
-                    -np 4 \
-                    -verbose -prepend-rank -print-rank-map \
-                    python training_benchmark_xpu.py \
-                    --dataset {dataset} --model sage \
-                    --batch-size 128 \
-                    --num-layers 2 \
-                    --num-hidden-channels 64 \
-                    --num-neighbors 10 \
-                    --num-epochs 10 \
-                    --num-workers 16 \
-                    --test \
-                    --device cpu'
-                """
-                message = f'np 4 on {host}, dataset {dataset}'
-                excute_command(command, message)
+        for dataset in dataset_list:
+            command = f"""
+            mpirun \
+                -np 4 \
+                -verbose -prepend-rank -print-rank-map \
+                python training_benchmark_xpu.py \
+                --dataset {dataset} --model sage \
+                --batch-size 128 \
+                --num-layers 2 \
+                --num-hidden-channels 64 \
+                --num-neighbors 10 \
+                --num-epochs 10 \
+                --num-workers 16 \
+                --test \
+                --device cpu
+            """
+            message = f'np 4 on dataset {dataset}'
+            excute_command(command, message)
 
     if 'multi' in args.task:
-        for host in args.hosts:
+        for device in device_list:
             for dataset in dataset_list:
                 command = f"""
-                ssh {host} \
-                'source /opt/intel/oneapi/setvars.sh --force && \
-                cd /workspace/pyg-dev/benchmark/multi_gpu/training/ && \
                 I_MPI_OFI_PROVIDER=tcp FI_TCP_IFACE=bond0 \
                 mpirun \
-                    -genv MASTER_ADDR={host} \
+                    -genv MASTER_ADDR={args.hosts[0]} \
                     -genv MASTER_PORT=11111 \
                     -hosts {hosts} \
                     -np 8 -ppn 4  \
@@ -72,9 +66,9 @@ def main():
                     --num-epochs 10 \
                     --num-workers 16 \
                     --test \
-                    --device cpu'
+                    --device {device}
                 """
-                message = f'np 8 on {host}, dataset {dataset}'
+                message = f'np 8 on {device}, dataset {dataset}'
                 excute_command(command, message)
 
 
@@ -83,4 +77,4 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     main()
 
-# python cpu-exp.py --hosts x1001c4s0b0n0 x1001c3s2b0n0 2>&1 | tee -a cpu.log
+
