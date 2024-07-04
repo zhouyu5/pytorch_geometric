@@ -18,22 +18,24 @@ def get_predefined_args() -> argparse.ArgumentParser:
     add = argparser.add_argument
     add('--hosts', nargs='+')
     add('--task', nargs='+', choices=['single', 'multi'], default=['single', 'multi'])
+    add('--np', default=4, type=int)
     return argparser
 
 
 def main():
     dataset_list = ['Reddit', 'ogbn-products']
     device_list = ['cpu', 'xpu']
+    batch_size = 512 // args.np
 
     if 'single' in args.task:
         for dataset in dataset_list:
             command = f"""
             mpirun \
-                -np 4 \
+                -np {args.np} \
                 -verbose -prepend-rank -print-rank-map \
                 python training_benchmark_xpu.py \
                 --dataset {dataset} --model sage \
-                --batch-size 128 \
+                --batch-size {batch_size} \
                 --num-layers 2 \
                 --num-hidden-channels 64 \
                 --num-neighbors 10 \
@@ -47,6 +49,8 @@ def main():
 
     if 'multi' in args.task:
         hosts = ','.join(args.hosts)
+        ppn = args.np // len(args.hosts)
+
         for device in device_list:
             for dataset in dataset_list:
                 command = f"""
@@ -55,11 +59,11 @@ def main():
                     -genv MASTER_ADDR={args.hosts[0]} \
                     -genv MASTER_PORT=11111 \
                     -hosts {hosts} \
-                    -np 8 -ppn 4  \
+                    -np {args.np} -ppn {ppn}  \
                     -verbose -prepend-rank -print-rank-map \
                     python training_benchmark_xpu.py \
                     --dataset {dataset} --model sage \
-                    --batch-size 64  \
+                    --batch-size {batch_size}  \
                     --num-layers 2 \
                     --num-hidden-channels 64 \
                     --num-neighbors 10 \
