@@ -27,7 +27,9 @@ def main():
         for dataset in dataset_list:
             command = f"""
             ssh {host} \
-            'mpirun \
+            'source /opt/intel/oneapi/setvars.sh --force && \
+            cd /workspace/pyg-dev/benchmark/multi_gpu/training/ && \
+            mpirun \
                 -np 4 \
                 -verbose -prepend-rank -print-rank-map \
                 python training_benchmark_xpu.py \
@@ -48,7 +50,9 @@ def main():
         for dataset in dataset_list:
             command = f"""
             ssh {host} \
-            'I_MPI_OFI_PROVIDER=tcp FI_TCP_IFACE=bond0 \
+            'source /opt/intel/oneapi/setvars.sh --force && \
+            cd /workspace/pyg-dev/benchmark/multi_gpu/training/ && \
+            I_MPI_OFI_PROVIDER=tcp FI_TCP_IFACE=bond0 \
             mpirun \
                 -genv MASTER_ADDR={host} \
                 -genv MASTER_PORT=11111 \
@@ -75,4 +79,4 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     main()
 
-# python cpu-exp.py --hosts  2>&1 | tee -a cpu.log
+# python cpu-exp.py --hosts x1001c4s0b0n0 x1001c3s2b0n0 2>&1 | tee -a cpu.log
