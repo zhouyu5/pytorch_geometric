@@ -46,6 +46,7 @@ def main():
             message = f'np 4 on {host}, dataset {dataset}'
             excute_command(command, message)
 
+    hosts = ','.join(args.hosts)
     for host in args.hosts:
         for dataset in dataset_list:
             command = f"""
@@ -56,7 +57,7 @@ def main():
             mpirun \
                 -genv MASTER_ADDR={host} \
                 -genv MASTER_PORT=11111 \
-                -hosts {args.hosts} \
+                -hosts {hosts} \
                 -np 8 -ppn 4  \
                 -verbose -prepend-rank -print-rank-map \
                 python training_benchmark_xpu.py \
