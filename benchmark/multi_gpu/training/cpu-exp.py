@@ -75,4 +75,4 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     main()
 
-# python cpu-exp.py 2>&1 | tee -a cpu.log
+# python cpu-exp.py --hosts  2>&1 | tee -a cpu.log
