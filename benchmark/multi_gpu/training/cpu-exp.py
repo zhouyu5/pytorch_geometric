@@ -24,7 +24,6 @@ def get_predefined_args() -> argparse.ArgumentParser:
 def main():
     dataset_list = ['Reddit', 'ogbn-products']
     device_list = ['cpu', 'xpu']
-    hosts = ','.join(args.hosts)
 
     if 'single' in args.task:
         for dataset in dataset_list:
@@ -47,6 +46,7 @@ def main():
             excute_command(command, message)
 
     if 'multi' in args.task:
+        hosts = ','.join(args.hosts)
         for device in device_list:
             for dataset in dataset_list:
                 command = f"""
