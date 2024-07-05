@@ -18,40 +18,41 @@ def get_predefined_args() -> argparse.ArgumentParser:
     add = argparser.add_argument
     add('--hosts', nargs='+')
     add('--task', nargs='+', choices=['single', 'multi'], default=['single', 'multi'])
+    add('--devices', nargs='+', choices=['cpu', 'xpu'], default=['cpu', 'xpu'])
     add('--np', default=4, type=int)
     return argparser
 
 
 def main():
     dataset_list = ['Reddit', 'ogbn-products']
-    device_list = ['cpu', 'xpu']
     batch_size = 512 // args.np
 
     if 'single' in args.task:
-        for dataset in dataset_list:
-            command = f"""
-            mpirun \
-                -np {args.np} \
-                -verbose -prepend-rank -print-rank-map \
-                python training_benchmark_xpu.py \
-                --dataset {dataset} --model sage \
-                --batch-size {batch_size} \
-                --num-layers 2 \
-                --num-hidden-channels 64 \
-                --num-neighbors 10 \
-                --num-epochs 10 \
-                --num-workers 16 \
-                --test \
-                --device cpu
-            """
-            message = f'np 4 on dataset {dataset}'
-            excute_command(command, message)
+        for device in args.devices:
+            for dataset in dataset_list:
+                command = f"""
+                mpirun \
+                    -np {args.np} \
+                    -verbose -prepend-rank -print-rank-map \
+                    python training_benchmark_xpu.py \
+                    --dataset {dataset} --model sage \
+                    --batch-size {batch_size} \
+                    --num-layers 2 \
+                    --num-hidden-channels 64 \
+                    --num-neighbors 10 \
+                    --num-epochs 10 \
+                    --num-workers 16 \
+                    --test \
+                    --device {device}
+                """
+                message = f'device {device} np {args.np} on dataset {dataset}'
+                excute_command(command, message)
 
     if 'multi' in args.task:
         hosts = ','.join(args.hosts)
         ppn = args.np // len(args.hosts)
 
-        for device in device_list:
+        for device in args.devices:
             for dataset in dataset_list:
                 command = f"""
                 I_MPI_OFI_PROVIDER=tcp FI_TCP_IFACE=bond0 \
@@ -72,7 +73,7 @@ def main():
                     --test \
                     --device {device}
                 """
-                message = f'np 8 on {device}, dataset {dataset}'
+                message = f'device {device} np {args.np} on {device}, dataset {dataset}'
                 excute_command(command, message)
 
 
